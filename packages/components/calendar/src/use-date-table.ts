@@ -20,18 +20,19 @@ export const useDateTable = (
   emit: SetupContext<DateTableEmits>['emit']
 ) => {
   dayjs.extend(localeData)
-  // https://day.js.org/docs/en/i18n/locale-data
+  // https://day.js.org/docs/en/i18n/locale-data 获取国际化配置中，一周的第一天是周几，默认值是周日 0
   const firstDayOfWeek: number = dayjs.localeData().firstDayOfWeek()
 
   const { t, lang } = useLocale()
-  const now = dayjs().locale(lang.value)
-
+  const now = dayjs().locale(lang.value) // 当前时间
+  // 是否范围模式
   const isInRange = computed(() => !!props.range && !!props.range.length)
-
+  // 二维单元格数组
   const rows = computed(() => {
     let days: CalendarDateCell[] = []
     if (isInRange.value) {
-      const [start, end] = props.range!
+      // 如果是范围模式
+      const [start, end] = props.range! // 取出开始和结束时间，得到当前月份的天数组
       const currentMonthRange: CalendarDateCell[] = rangeArr(
         end.date() - start.date() + 1
       ).map((index) => ({
@@ -41,6 +42,7 @@ export const useDateTable = (
 
       let remaining = currentMonthRange.length % 7
       remaining = remaining === 0 ? 0 : 7 - remaining
+      // 取7的余数，得到下个月需要渲染的天
       const nextMonthRange: CalendarDateCell[] = rangeArr(remaining).map(
         (_, index) => ({
           text: index + 1,
@@ -49,7 +51,8 @@ export const useDateTable = (
       )
       days = currentMonthRange.concat(nextMonthRange)
     } else {
-      const firstDay = props.date.startOf('month').day()
+      // 否则不是范围模式
+      const firstDay = props.date.startOf('month').day() // 获取绑定值的月份第一天是星期几
       const prevMonthDays: CalendarDateCell[] = getPrevMonthLastDays(
         props.date,
         (firstDay - firstDayOfWeek + 7) % 7
@@ -57,6 +60,7 @@ export const useDateTable = (
         text: day,
         type: 'prev',
       }))
+      // 获取当前月份的天数数组
       const currentMonthDays: CalendarDateCell[] = getMonthDays(props.date).map(
         (day) => ({
           text: day,
@@ -64,7 +68,7 @@ export const useDateTable = (
         })
       )
       days = [...prevMonthDays, ...currentMonthDays]
-      const remaining = 7 - (days.length % 7 || 7)
+      const remaining = 7 - (days.length % 7 || 7) // 根据上个月和当月的天数的和,取7的余数，得到应该显示的下月日期
       const nextMonthDays: CalendarDateCell[] = rangeArr(remaining).map(
         (_, index) => ({
           text: index + 1,
@@ -75,7 +79,7 @@ export const useDateTable = (
     }
     return toNestedArr(days)
   })
-
+  // 表头部分
   const weekDays = computed(() => {
     const start = firstDayOfWeek
     if (start === 0) {
@@ -86,7 +90,7 @@ export const useDateTable = (
         .map((_) => t(`el.datepicker.weeks.${_}`))
     }
   })
-
+  /** 根据类型type= prev | current | next, 获取日期对象 */
   const getFormattedDate = (day: number, type: CalendarDateCellType): Dayjs => {
     switch (type) {
       case 'prev':
@@ -97,12 +101,12 @@ export const useDateTable = (
         return props.date.date(day)
     }
   }
-
+  /** 选择单元格回调 */
   const handlePickDay = ({ text, type }: CalendarDateCell) => {
     const date = getFormattedDate(text, type)
     emit('pick', date)
   }
-
+  /** 返回单元格插槽数据  */
   const getSlotData = ({ text, type }: CalendarDateCell) => {
     const day = getFormattedDate(text, type)
     return {

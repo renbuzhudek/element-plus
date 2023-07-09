@@ -10,7 +10,7 @@ export interface RepeatClickOptions {
   delay?: number
   handler: (...args: unknown[]) => unknown
 }
-
+// 长按鼠标左键间隔100ms重复执行回调函数,如果100ms内鼠标弹起只执行一次
 export const vRepeatClick: ObjectDirective<
   HTMLElement,
   RepeatClickOptions | RepeatClickOptions['handler']
