@@ -9,6 +9,9 @@ import { INPUT_EVENT, UPDATE_MODEL_EVENT } from '@element-plus/constants'
 import type { ComputedRef, SetupContext } from 'vue'
 import type { Dayjs } from 'dayjs'
 import type { CalendarDateType, CalendarEmits, CalendarProps } from './calendar'
+/** 需要注意的是，dayjs的 startOf endOf isSame 函数参数为week时，值都是取决于国际化设置参数 weekStart,可查看 dayjs.localeData().firstDayOfWeek(),
+ * firstDayOfWeek 不支持实例动态修改此参数,只能改语言配置
+ */
 dayjs.extend(localeData)
 dayjs.extend(updateLocale)
 dayjs.updateLocale('en', {
@@ -31,7 +34,7 @@ const adjacentMonth = (start: Dayjs, end: Dayjs): [Dayjs, Dayjs][] => {
   // 返回2个月份的数组
   const arr: [Dayjs, Dayjs][] = [
     [start, firstMonthLastDay], //开始时间到所在月份最后一天
-    [lastMonthStartDay.startOf('week'), end], // 结束月份开始时间的周一到结束时间
+    [lastMonthStartDay.startOf('week'), end], // 结束月份开始时间所在周的第一天到结束时间
   ]
   // new Date(2023, 6, 28), new Date(2023, 7, 2) 打印值： [[2023-07-23,2023-07-31],[2023-08-06, 2023-08-05]]
   //第二组数据在rows里面 currentMonthRange.length=0,其实只要出现是在同一周的情况，那么start和end就是头和尾，那么第二组数据的开始时间就是下个周一，比end大一天，
@@ -64,8 +67,8 @@ const threeConsecutiveMonth = (start: Dayjs, end: Dayjs): [Dayjs, Dayjs][] => {
 
   return [
     [start, firstMonthLastDay], // 开始时间至第一个月最后一天
-    [secondMonthStartDay.startOf('week'), secondMonthLastDay], // 第二个月开始时间的周一 至 第二个月最后一天
-    [lastMonthStartDay.startOf('week'), end], // 最后一个月开始时间的周一 至最后一天
+    [secondMonthStartDay.startOf('week'), secondMonthLastDay], // 第二个月开始时间所在周的第一天 至 第二个月最后一天
+    [lastMonthStartDay.startOf('week'), end], // 最后一个月开始时间所在周的第一天 至最后一天
   ]
 }
 
