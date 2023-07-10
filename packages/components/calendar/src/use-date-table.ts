@@ -23,6 +23,7 @@ export const useDateTable = (
   // https://day.js.org/docs/en/i18n/locale-data 获取国际化配置中，一周的第一天是周几，默认值是周日 0
   const firstDayOfWeek: number = dayjs.localeData().firstDayOfWeek()
 
+  console.log('use-date-table firstDayOfWeek', firstDayOfWeek)
   const { t, lang } = useLocale()
   const now = dayjs().locale(lang.value) // 当前时间
   // 是否范围模式

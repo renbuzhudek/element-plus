@@ -1,5 +1,7 @@
 import { computed, ref, useSlots } from 'vue'
 import dayjs from 'dayjs'
+import localeData from 'dayjs/plugin/localeData.js'
+import updateLocale from 'dayjs/plugin/updateLocale.js'
 import { useDeprecated, useLocale } from '@element-plus/hooks'
 import { debugWarn } from '@element-plus/utils'
 import { INPUT_EVENT, UPDATE_MODEL_EVENT } from '@element-plus/constants'
@@ -7,6 +9,13 @@ import { INPUT_EVENT, UPDATE_MODEL_EVENT } from '@element-plus/constants'
 import type { ComputedRef, SetupContext } from 'vue'
 import type { Dayjs } from 'dayjs'
 import type { CalendarDateType, CalendarEmits, CalendarProps } from './calendar'
+dayjs.extend(localeData)
+dayjs.extend(updateLocale)
+dayjs.updateLocale('en', {
+  // 更新周几作为一周的开始
+  // weekStart: 7,
+})
+console.log('use-calendar firstDayOfWeek', dayjs.localeData().firstDayOfWeek())
 /** 相邻月份 ，传入的 starts是一周的开始，end是一周的结束*/
 const adjacentMonth = (start: Dayjs, end: Dayjs): [Dayjs, Dayjs][] => {
   const firstMonthLastDay = start.endOf('month') // 开始时间所在月份的最后一天
